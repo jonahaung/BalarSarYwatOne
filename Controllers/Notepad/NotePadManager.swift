@@ -22,7 +22,10 @@ class NotePadManager: NSObject {
 //        $0.preserveInterwordSpaces = false
         return $0
     }(SwiftyTesseract(language: .burmese))
-    private let queue = DispatchQueue(label: "com.jonahaung.MyanmarTextScanner", qos: .default, attributes: [], autoreleaseFrequency: .workItem)
+    private lazy var textCorrector = TextCorrector.shared
+    private lazy var expression = RegexParser.regularExpression(for: RegexParser.unicodePattern)!
+    
+    private let queue = DispatchQueue(label: "com.jonahaung.MyanmarTextScanner", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     
     init(note: Note) {
         self.note = context.object(with: note.objectID) as! Note
@@ -48,7 +51,7 @@ class NotePadManager: NSObject {
 extension NotePadManager: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
-        
+        save()
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -71,10 +74,13 @@ extension NotePadManager {
     func performImageRecognition(_ image: UIImage) {
         let scaledImage = image.scaledImage(1000) ?? image
         let preprocessedImage = scaledImage.preprocessedImage() ?? scaledImage
-        self.swiftyTesseract.performOCR(on: preprocessedImage) { recognizedString in
+        swiftyTesseract.performOCR(on: preprocessedImage) { recognizedString in
+            let text = recognizedString ?? ""
             
-            let result = recognizedString?.removerCharacters(in: .removingCharacters)
-            self.delegate?.didFinishedRecoginingText(recognizedText: result)
+            let words = text.words()
+            let filtered = words.filter{ self.expression.matches($0 )}
+            let joined = self.textCorrector.correct(text: filtered.joined(separator: " ")).exclude(in: .removingCharacters)
+            self.delegate?.didFinishedRecoginingText(recognizedText: joined)
         }
     }
 

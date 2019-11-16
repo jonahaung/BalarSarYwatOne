@@ -28,7 +28,7 @@ extension NotePadTextView {
     private func setup() {
         bounces = true
         alwaysBounceVertical = true
-        isScrollEnabled = true
+//        isScrollEnabled = true
         backgroundColor = nil
         allowsEditingTextAttributes = true
         keyboardDismissMode = .none
@@ -38,7 +38,6 @@ extension NotePadTextView {
         paragraphStyle.lineBreakMode = .byWordWrapping
         paragraphStyle.lineHeightMultiple = 1.1
         paragraphStyle.firstLineHeadIndent = 10
-        paragraphStyle.paragraphSpacing = 5
 
         font = UIFont.getDefaultFont()
         var attr = typingAttributes

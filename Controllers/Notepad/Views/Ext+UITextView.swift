@@ -50,12 +50,12 @@ extension UITextView {
 extension UIScrollView{
 
     func scrollToBottom(animated: Bool) {
-        guard contentSize.height > (bounds.height - contentInset.bottom) else {
-            return
-        }
+//        guard contentSize.height > (bounds.height - contentInset.bottom) else {
+//            return
+//        }
         var offset = contentOffset
         let inset = contentInset
-        offset.y = max(-inset.top, contentSize.height - bounds.height + inset.bottom)
+        offset.y = max(-inset.top, contentSize.height - bounds.height + inset.bottom + safeAreaInsets.bottom)
         
         setContentOffset(offset, animated: animated)
     }

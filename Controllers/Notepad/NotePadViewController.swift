@@ -114,7 +114,7 @@ extension NotePadViewController {
         let pencil = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(didTapEdit(_:)))
         let handWriting = UIBarButtonItem(image: UIImage(systemName: "pencil.and.outline"), style: .plain, target: self, action: #selector(didTapHandWriting(_:)))
         let trash = UIBarButtonItem(image: UIImage(systemName: "trash"), style: .plain, target: self, action: #selector(didTapTrash(_:)))
-        let camera = UIBarButtonItem(image: UIImage(systemName: "doc.text.viewfinder"), style: .plain, target: self, action: #selector(didTapViewFinder(_:)))
+        let camera = UIBarButtonItem(image: UIImage(systemName: "viewfinder"), style: .plain, target: self, action: #selector(didTapViewFinder(_:)))
         let items = [trash, UIBarButtonItem.flexiable, camera, handWriting, pencil]
         bar.setItems(items, animated: false)
     }
@@ -153,7 +153,7 @@ extension NotePadViewController: NotePadManagerDelegate {
     func didFinishedRecoginingText(recognizedText: String?) {
         activityIndicator.stopAnimating()
         textView.insertText(recognizedText ?? "")
-        textView.ensureCaretToTheEnd()
+        textView.scrollToBottom(animated: true)
     }
     
     
