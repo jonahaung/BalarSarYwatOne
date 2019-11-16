@@ -84,3 +84,13 @@ extension UITableView {
         backgroundView = UIImageView(image: UIImage(named: traitCollection.userInterfaceStyle == .dark ? "bgD" : "bgL"))
     }
 }
+
+extension CharacterSet {
+    static let removingCharacters = CharacterSet(charactersIn: "+*#%;:&^$@!~.,'`⏋123456789").union(.newlines)
+}
+extension String {
+    func removerCharacters(in set: CharacterSet) -> String {
+        let filtered = unicodeScalars.lazy.filter { !set.contains($0) }
+        return String(String.UnicodeScalarView(filtered))
+    }
+}

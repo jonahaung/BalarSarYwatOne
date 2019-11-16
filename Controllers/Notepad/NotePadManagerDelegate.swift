@@ -13,4 +13,5 @@ protocol NotePadManagerDelegate: class {
     
     func textViewDidEndEditing()
     func textViewDidBeginEditing()
+    func didFinishedRecoginingText(recognizedText: String?)
 }

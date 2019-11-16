@@ -12,8 +12,6 @@ extension UIAlertController {
     
     func addOneTextField() -> UITextField {
         let textField = OneTextFieldViewController()
-        
-//        textField.textField.backgroundColor = UIColor.quaternarySystemFill
        
         let height: CGFloat = OneTextFieldViewController.ui.height + OneTextFieldViewController.ui.vInset
         set(vc: textField, height: height)
@@ -155,6 +153,11 @@ extension UIAlertController {
     func addContinueAction(action: @escaping (UIAlertAction)->Void) {
 
         addAction(UIAlertAction(title: "Continue", style: .default, handler: action))
+    }
+    
+    func addAction(buttonText: String, action: @escaping (UIAlertAction)->Void) {
+
+        addAction(UIAlertAction(title: buttonText, style: .default, handler: action))
     }
 }
 

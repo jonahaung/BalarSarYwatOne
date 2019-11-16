@@ -37,8 +37,8 @@ extension NotePadTextView {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byWordWrapping
         paragraphStyle.lineHeightMultiple = 1.1
-        paragraphStyle.firstLineHeadIndent = 30
-        paragraphStyle.paragraphSpacing = 10
+        paragraphStyle.firstLineHeadIndent = 10
+        paragraphStyle.paragraphSpacing = 5
 
         font = UIFont.getDefaultFont()
         var attr = typingAttributes

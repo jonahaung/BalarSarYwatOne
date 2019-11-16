@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 final class NotePadViewController: UIViewController, Navigator {
     
     override var canBecomeFirstResponder: Bool { return true }
@@ -19,13 +20,20 @@ final class NotePadViewController: UIViewController, Navigator {
     }(UIImageView())
     
     let textView = NotePadTextView()
+    let activityIndicator: UIActivityIndicatorView = {
+        $0.color = UIColor.systemRed
+        $0.style = .large
+        $0.hidesWhenStopped = true
+        $0.sizeToFit()
+        return $0
+    }(UIActivityIndicatorView())
     
     let bar: UIToolbar = {
         $0.clipsToBounds = true
         $0.setShadowImage(UIImage(), forToolbarPosition: .any)
         $0.isTranslucent = true
         $0.frame.size = CGSize(width: UIScreen.main.bounds.width, height: 44)
-        $0.tintColor = UIColor.systemRed 
+        $0.tintColor = UIColor.systemRed
         return $0
     }(UIToolbar())
     
@@ -56,7 +64,7 @@ final class NotePadViewController: UIViewController, Navigator {
         setup()
         setupManager()
         
-        textView.attributedText = note.attributedString?.toAttributedString()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -81,6 +89,10 @@ final class NotePadViewController: UIViewController, Navigator {
         
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        activityIndicator.center = view.center
+    }
     // Trait Collections
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
@@ -89,8 +101,23 @@ final class NotePadViewController: UIViewController, Navigator {
     }
 }
 
-// Actions
+// Toolbars
 extension NotePadViewController {
+    // Editing
+    private func setEditingToolbar() {
+        let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(didTapDone(_:)))
+        let items = [UIBarButtonItem.flexiable, done]
+        bar.setItems(items, animated: false)
+    }
+    // Default
+    private func setDefaultToolbar() {
+        let pencil = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(didTapEdit(_:)))
+        let handWriting = UIBarButtonItem(image: UIImage(systemName: "pencil.and.outline"), style: .plain, target: self, action: #selector(didTapHandWriting(_:)))
+        let trash = UIBarButtonItem(image: UIImage(systemName: "trash"), style: .plain, target: self, action: #selector(didTapTrash(_:)))
+        let camera = UIBarButtonItem(image: UIImage(systemName: "doc.text.viewfinder"), style: .plain, target: self, action: #selector(didTapViewFinder(_:)))
+        let items = [trash, UIBarButtonItem.flexiable, camera, handWriting, pencil]
+        bar.setItems(items, animated: false)
+    }
     
     @objc private func didTapEdit(_ sender: UIBarButtonItem?) {
         textView.becomeFirstResponder()
@@ -107,29 +134,28 @@ extension NotePadViewController {
         manager.save()
         
     }
-}
-
-// Toolbars
-extension NotePadViewController {
-    // Editing
-    private func setEditingToolbar() {
-        let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(didTapDone(_:)))
-        let items = [UIBarButtonItem.flexiable, done]
-        bar.setItems(items, animated: false)
-    }
-    // Default
-    private func setDefaultToolbar() {
+    
+    @objc private func didTapViewFinder(_ sender: UIBarButtonItem?) {
+        textView.resignFirstResponder()
+        performScanner()
         
-        let pencil = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(didTapEdit(_:)))
-        let trash = UIBarButtonItem(image: UIImage(systemName: "trash"), style: .plain, target: self, action: #selector(didTapTrash(_:)))
-        let camera = UIBarButtonItem(image: UIImage(systemName: "camera"), style: .plain, target: self, action: #selector(didTapTrash(_:)))
-        let items = [trash, UIBarButtonItem.flexiable, camera, pencil]
-        bar.setItems(items, animated: false)
+    }
+    @objc private func didTapHandWriting(_ sender: UIBarButtonItem?) {
+        textView.resignFirstResponder()
+        
+        
     }
 }
 
 // Manager Delegate
 extension NotePadViewController: NotePadManagerDelegate {
+    
+    func didFinishedRecoginingText(recognizedText: String?) {
+        activityIndicator.stopAnimating()
+        textView.insertText(recognizedText ?? "")
+        textView.ensureCaretToTheEnd()
+    }
+    
     
     func textViewDidEndEditing() {
         setDefaultToolbar()
@@ -153,6 +179,7 @@ extension NotePadViewController {
         
         textView.frame = view.bounds
         view.addSubview(textView)
+        view.addSubview(activityIndicator)
     }
     
     private func updateBackgroundImages() {
@@ -162,6 +189,7 @@ extension NotePadViewController {
     }
     
     private func setupManager() {
+        textView.text = note.text
         textView.delegate = manager
         manager.delegate = self
     }
@@ -215,7 +243,7 @@ extension NotePadViewController {
     
     func bottomSpaceFromInputBar() -> CGFloat {
         let trackingViewRect = view.convert(bar.bounds, from: bar).integral
-        return max(bar.bounds.height, view.bounds.height - trackingViewRect.minY)
+        return max(0, view.bounds.height - trackingViewRect.maxY)
     }
 
 }
