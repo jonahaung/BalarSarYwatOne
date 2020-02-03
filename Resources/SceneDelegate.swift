@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -22,16 +21,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use a UIHostingController as window root view controller.
-        PersistanceManager.shared.loadContainer {
-            if let windowScene = scene as? UIWindowScene {
-                let window = UIWindow(windowScene: windowScene)
-                window.tintColor = UIColor.systemRed
-                window.rootViewController = NavigationController(rootViewController: FoldersViewController())
-                self.window = window
-                window.makeKeyAndVisible()
+        if let windowScene = scene as? UIWindowScene {
+            window = UIWindow(windowScene: windowScene)
+            window?.tintColor = UIColor.systemBlue
+            window?.backgroundColor = UIColor.systemBackground
+            window?.makeKeyAndVisible()
+            PersistanceManager.shared.loadContainer {
+                self.window?.rootViewController = NavigationController(rootViewController: FoldersViewController())
+                StartUp.start()
             }
+            
+            
         }
+        
         
     }
 

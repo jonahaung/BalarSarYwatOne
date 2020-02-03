@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class FoldersManager: NSObject {
+final class FoldersManager: NSObject {
     
     let fetchRequest: NSFetchRequest<Folder> = {
         $0.sortDescriptors = [NSSortDescriptor(key: "created", ascending: false)]
@@ -18,7 +18,11 @@ class FoldersManager: NSObject {
     
     lazy var frc: NSFetchedResultsController<Folder> = NSFetchedResultsController<Folder>(fetchRequest: fetchRequest, managedObjectContext: PersistanceManager.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
     
-    weak var delegate: FoldersManagerDelegate?
+    weak var delegate: FoldersManagerDelegate? {
+        didSet {
+            delegate?.foldersDidChange()
+        }
+    }
     
     var tableView: UITableView? {
         return delegate?.tableView
@@ -31,18 +35,19 @@ class FoldersManager: NSObject {
         }catch { print(error.localizedDescription) }
         frc.delegate = self
     }
+    func clearEmptyNotes() {
+        let fetchRequest: NSFetchRequest<Note> = NSFetchRequest(entityName: "Note")
+        fetchRequest.predicate = NSPredicate(format: "text == %@", "")
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest as! NSFetchRequest<NSFetchRequestResult>)
     
-}
 
-extension FoldersManager {
-    
-    func createFolder(name: String) {
-        PersistanceManager.shared.container.performBackgroundTask { (context) in
-            let x = Folder(context: context)
-            x.name = name
-            x.created = Date()
-            context.saveIfHasChanges()
+        do {
+            try PersistanceManager.shared.viewContext.execute(batchDeleteRequest)
+            PersistanceManager.shared.saveContext()
+        }catch {
+            print(error)
         }
+        
     }
 }
 
@@ -100,6 +105,7 @@ extension FoldersManager: NSFetchedResultsControllerDelegate {
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView?.endUpdates()
+        delegate?.foldersDidChange()
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?,

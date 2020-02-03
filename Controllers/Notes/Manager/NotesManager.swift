@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class NotesManager: NSObject {
+final class NotesManager: NSObject {
     
     let fetchRequest: NSFetchRequest<Note> = {
         $0.sortDescriptors = [NSSortDescriptor(key: "edited", ascending: false)]
@@ -18,7 +18,11 @@ class NotesManager: NSObject {
     
     lazy var frc: NSFetchedResultsController<Note> = NSFetchedResultsController<Note>(fetchRequest: fetchRequest, managedObjectContext: PersistanceManager.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
     
-    weak var delegate: NotesManagerDelegate?
+    weak var delegate: NotesManagerDelegate? {
+        didSet {
+            delegate?.notesDidChange()
+        }
+    }
     
     var tableView: UITableView? {
         return delegate?.tableView
@@ -36,23 +40,8 @@ class NotesManager: NSObject {
         }catch { print(error.localizedDescription) }
         
     }
-}
-
-extension NotesManager {
     
-    func createNote(title: String) {
-        guard let folderID = folder?.objectID else {
-            return
-        }
-        PersistanceManager.shared.container.performBackgroundTask { (context) in
-            let folder = context.object(with: folderID) as? Folder
-            let x = Note(context: context)
-            x.title = title
-            x.edited = Date()
-            x.folder = folder
-            context.saveIfHasChanges()
-        }
-    }
+    
 }
 
 extension NotesManager: Navigator {
@@ -89,6 +78,7 @@ extension NotesManager: NSFetchedResultsControllerDelegate {
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView?.endUpdates()
+        delegate?.notesDidChange()
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?,
@@ -127,8 +117,5 @@ extension NotesManager: NSFetchedResultsControllerDelegate {
             break
         }
     }
-    
-    
-    
 }
 

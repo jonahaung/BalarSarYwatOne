@@ -83,11 +83,11 @@ class NotesTableViewCell: UITableViewCell {
 extension NotesTableViewCell {
     
     func configure(_ note: Note) {
-        titleLabel.text = note.title
+        titleLabel.attributedText = note.title?.titleAttributedText
         if let time = note.edited?.relativeString {
             let text = note.text ?? "No Additional Text"
             let attrStr = NSMutableAttributedString(string: "\(time) ", attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline), .foregroundColor: UIColor.secondaryLabel])
-            let textAttrStr = NSAttributedString(string: text, attributes: [.font: UIFont.preferredFont(forTextStyle: .callout), .foregroundColor: UIColor.tertiaryLabel])
+            let textAttrStr = text.labelAttributedText
             attrStr.append(textAttrStr)
             subtitleLabel.attributedText = attrStr
         }
@@ -95,3 +95,17 @@ extension NotesTableViewCell {
     }
 }
 
+
+
+extension String {
+
+    var titleAttributedText: NSAttributedString {
+        let font = self.EXT_isMyanmarCharacters == true ? UIFontMetrics.default.scaledFont(for: UIFont(name: "MyanmarPhetsot", size: UIFont.buttonFontSize)!) : UIFont.preferredFont(forTextStyle: .headline)
+        return NSAttributedString(string: self, attributes: [.font: font])
+    }
+    var labelAttributedText: NSAttributedString {
+        
+        let font = self.EXT_isMyanmarCharacters == true ? UIFontMetrics.default.scaledFont(for: UIFont(name: "Pyidaungsu", size: UIFont.labelFontSize)!) : UIFont.preferredFont(forTextStyle: .subheadline)
+        return NSAttributedString(string: self, attributes: [.font: font])
+    }
+}

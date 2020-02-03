@@ -14,7 +14,7 @@ extension UITextView {
         if let textPosition = self.closestPosition(to: point) {
             return tokenizer.rangeEnclosingPosition(textPosition, with: .word, inDirection: UITextDirection(rawValue: 1))
         }
-        return nil
+        return nil 
     }
     
     func getWordAtPosition(_ point: CGPoint) -> String? {
@@ -38,10 +38,8 @@ extension UITextView {
         }
     }
     func ensureCaretToTheEnd() {
-        // Moving the caret to the correct position by removing the trailing whitespace
-        // http://stackoverflow.com/questions/14220187/uitextfield-has-trailing-whitespace-after-securetextentry-toggle
-        let beginning = beginningOfDocument
-        selectedTextRange = textRange(from: beginning, to: beginning)
+//        let beginning = beginningOfDocument
+//        selectedTextRange = textRange(from: beginning, to: beginning)
         let end = endOfDocument
         selectedTextRange = textRange(from: end, to: end)
     }
@@ -50,9 +48,7 @@ extension UITextView {
 extension UIScrollView{
 
     func scrollToBottom(animated: Bool) {
-//        guard contentSize.height > (bounds.height - contentInset.bottom) else {
-//            return
-//        }
+
         var offset = contentOffset
         let inset = contentInset
         offset.y = max(-inset.top, contentSize.height - bounds.height + inset.bottom + safeAreaInsets.bottom)

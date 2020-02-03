@@ -8,21 +8,15 @@
 
 import UIKit
 
-class NavigationController: UINavigationController {
+public class NavigationController: UINavigationController {
 
-    let backgroundImageView: UIImageView = {
-        $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        return $0
-    }(UIImageView())
-    
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         setup()
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
-            setBackgroundImage()
             setBarImage()
         }
     }
@@ -36,18 +30,10 @@ extension NavigationController {
         navigationBar.isTranslucent = true
         toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         
-        setBackgroundImage()
         setBarImage()
-        
-        backgroundImageView.frame = view.bounds
-        view.insertSubview(backgroundImageView, at: 0)
+
     }
-    
-    private func setBackgroundImage() {
-        let imageName = traitCollection.userInterfaceStyle == .dark ? "bgD" : "bgL"
-        backgroundImageView.image = UIImage(named: imageName)
-    }
-    
+
     private func setBarImage() {
         let imageName = traitCollection.userInterfaceStyle == .dark ? "navBarD" : "navBarL"
         navigationBar.setBackgroundImage(UIImage(named: imageName), for: .default)

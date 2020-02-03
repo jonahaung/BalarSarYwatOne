@@ -9,6 +9,7 @@
 import UIKit
 
 extension UIFont {
+    
     var isBold: Bool {
         return fontDescriptor.symbolicTraits.contains(.traitBold)
     }
@@ -16,7 +17,7 @@ extension UIFont {
     var isItalic: Bool {
         return fontDescriptor.symbolicTraits.contains(.traitItalic)
     }
-    
+    static let myaFont: UIFont = UIFontMetrics.default.scaledFont(for: UIFont(name: "MyanmarPauklay", size: 17)!)
     func italic() -> UIFont {
         var symTraits = fontDescriptor.symbolicTraits
         symTraits.insert(.traitItalic)

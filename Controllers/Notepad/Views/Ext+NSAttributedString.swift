@@ -49,7 +49,6 @@ extension NSMutableAttributedString {
         try? self.init(data: data, options: options, documentAttributes: nil)
     }
 
-    
     func bold() {
         beginEditing()
         enumerateAttribute(.font, in: NSRange(location: 0, length: self.length)) { (value, range, stop) in

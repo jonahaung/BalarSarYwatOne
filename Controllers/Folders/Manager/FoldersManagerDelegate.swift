@@ -10,4 +10,5 @@ import UIKit
 
 protocol FoldersManagerDelegate: class {
     var tableView: UITableView { get }
+    func foldersDidChange()
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NotesViewController: UIViewController {
+class NotesViewController: UIViewController, ItemFactory {
     
     let tableView: UITableView = {
         $0.backgroundColor = nil
@@ -20,6 +20,13 @@ class NotesViewController: UIViewController {
         $0.tableFooterView = UIView()
         return $0
     }(UITableView(frame: UIScreen.main.bounds, style: .grouped))
+    
+    let footerLabel: UILabel = {
+        $0.font = UIFont.preferredFont(forTextStyle: .footnote)
+        $0.textColor = .quaternaryLabel
+        $0.textAlignment = .center
+        return $0
+    }(UILabel())
     
     lazy var manager = NotesManager(folder: folder)
     let folder: Folder
@@ -63,29 +70,20 @@ extension NotesViewController {
     
     private func setup() {
         navigationItem.title = folder.name
-        let addNote = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(didtapAdddNote(_:)))
+        let addNote = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(font: UIFont.preferredFont(forTextStyle: .title3), scale: .large)), style: .plain, target: self, action: #selector(didtapAdddNote(_:)))
         navigationItem.rightBarButtonItem = editButtonItem
         navigationController?.setToolbarHidden(false, animated: true)
-        toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), addNote]
+        
+        let label = UIBarButtonItem(customView: footerLabel)
+        toolbarItems = [UIBarButtonItem.flexiable, label, UIBarButtonItem.flexiable, addNote]
         
     }
     
     
     @objc private func didtapAdddNote(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(title: "Create New Note", message: nil, preferredStyle: .alert)
-        let textField = alert.addOneTextField()
-        textField.autocapitalizationType = .words
-        textField.placeholder = "Title"
-        textField.delegate = self
-        alert.addContinueAction {[weak textField, weak self] (x) in
-            if let text = textField?.text, !text.isEmpty {
-                self?.manager.createNote(title: text)
-            }
-        }
-        alert.addCancelAction()
-        alert.show {[weak textField] in
-            textField?.becomeFirstResponder()
-        }
+        let note = itemFactory_createNote(folderName: self.folder.name.emptyIfNil, text: "  ")
+        let vc = NotePadViewController(note: note)
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -98,12 +96,16 @@ extension NotesViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         let hasText = textField.text != nil && textField.text?.isEmpty == false
         if let text = textField.text, !text.isEmpty {
-            manager.createNote(title: text)
+            _ = itemFactory_createNote(text: text)
         }
         return hasText
     }
 }
 
 extension NotesViewController: NotesManagerDelegate {
-    
+    func notesDidChange() {
+        if let count = manager.frc.fetchedObjects?.count {
+            footerLabel.text = "\(count) Notes"
+        }
+    }
 }

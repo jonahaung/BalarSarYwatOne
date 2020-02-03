@@ -8,17 +8,22 @@
 
 import UIKit
 
-class FoldersViewController: UIViewController {
+class FoldersViewController: UIViewController, ItemFactory, Navigator {
     
     let tableView: UITableView = {
-        
         $0.backgroundColor = nil
         $0.setBackgroundImage()
         $0.separatorColor = UIColor.secondarySystemFill
         $0.register(FoldersTableViewCell.self, forCellReuseIdentifier: FoldersTableViewCell.reuseIdentifier)
         $0.tableFooterView = UIView()
-       return $0
+        return $0
     }(UITableView(frame: UIScreen.main.bounds, style: .grouped))
+    
+    let footerLabel: UILabel = {
+        $0.font = UIFont.preferredFont(forTextStyle: .footnote)
+        $0.textColor = .secondaryLabel
+        return $0
+    }(UILabel())
     
     lazy var manager = FoldersManager()
     
@@ -36,6 +41,11 @@ class FoldersViewController: UIViewController {
         if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
             tableView.setBackgroundImage()
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        manager.clearEmptyNotes()
     }
 }
 
@@ -56,19 +66,35 @@ extension FoldersViewController {
     private func setup() {
         navigationItem.title = "Folders"
         
-        navigationItem.rightBarButtonItem = editButtonItem
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: editButtonItem.action)
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "signature"), style: .plain, target: self, action: #selector(didTapSettings(_:)))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "signature", withConfiguration: UIImage.SymbolConfiguration(font: UIFont.preferredFont(forTextStyle: .title3), scale: .large)), style: .done, target: self, action: #selector(didTapSettings(_:)))
+        
         navigationController?.setToolbarHidden(false, animated: true)
-        let addNote = UIBarButtonItem(image: UIImage(systemName: "folder.badge.plus"), style: .plain, target: self, action: #selector(didtapAdddNot(_:)))
-        toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), addNote]
+        
+        
+        let cameraScanner = UIBarButtonItem(image: UIImage(systemName: "camera"), style: .done, target: self, action: #selector(didTapCameraScanner(_:)))
+        let photoScanner = UIBarButtonItem(image: UIImage(systemName: "photo"), style: .done, target: self, action: #selector(didTapPhotoScanner(_:)))
+        let newNote = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(font: UIFont.preferredFont(forTextStyle: .title2), scale: .large)), style: .done, target: self, action: #selector(didTapNewNote(_:)))
+        let newFolder = UIBarButtonItem(title: "New Folder", style: .plain, target: self, action: #selector(didTapAddNewFolder(_:)))
+        let label = UIBarButtonItem(customView: footerLabel)
+        toolbarItems = [newFolder, UIBarButtonItem.flexiable, label, UIBarButtonItem.flexiable, photoScanner, cameraScanner, newNote]
     }
     
     @objc private func didTapSettings(_ sender: UIBarButtonItem) {
         navigationController?.pushViewController(SettingsViewController(), animated: true )
     }
     
-    @objc private func didtapAdddNot(_ sender: UIBarButtonItem) {
+    @objc private func didTapCameraScanner(_ sender: UIBarButtonItem) {
+        itemFactory_gotoEmptyNote(actionType: .OpenCameraScanner)
+    }
+    @objc private func didTapPhotoScanner(_ sender: UIBarButtonItem) {
+        itemFactory_gotoEmptyNote(actionType: .OpenPhotoScanner)
+    }
+    @objc private func didTapNewNote(_ sender: UIBarButtonItem) {
+        itemFactory_gotoEmptyNote(actionType: .None)
+    }
+    @objc private func didTapAddNewFolder(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Create New Folder", message: nil, preferredStyle: .alert)
         let textField = alert.addOneTextField()
         textField.autocapitalizationType = .words
@@ -76,7 +102,7 @@ extension FoldersViewController {
         textField.delegate = self
         alert.addContinueAction {[weak textField, weak self] (x) in
             if let text = textField?.text, !text.isEmpty {
-                self?.manager.createFolder(name: text)
+                _ = self?.itemFactory_createFolder(name: text)
             }
         }
         alert.addCancelAction()
@@ -95,12 +121,16 @@ extension FoldersViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         let hasText = textField.text != nil && textField.text?.isEmpty == false
         if let text = textField.text, !text.isEmpty {
-            manager.createFolder(name: text)
+            _ = self.itemFactory_createFolder(name: text)
         }
         return hasText
     }
 }
 
 extension FoldersViewController: FoldersManagerDelegate {
-    
+    func foldersDidChange() {
+        if let count = manager.frc.fetchedObjects?.count {
+            footerLabel.text = "\(count) Folders"
+        }
+    }
 }

@@ -22,4 +22,8 @@ extension Navigator {
         UIApplication.topViewController()?.navigationController?.popViewController(animated: true)
     }
     
+    func showAlert(title: String?, message: String?) {
+        let x = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+        UIApplication.topViewController()?.present(x, animated: true)
+    }
 }

@@ -11,4 +11,5 @@ import UIKit
 protocol NotesManagerDelegate: class {
     var tableView: UITableView { get }
     var folder: Folder { get }
+    func notesDidChange()
 }

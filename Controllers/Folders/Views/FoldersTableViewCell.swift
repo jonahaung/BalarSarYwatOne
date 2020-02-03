@@ -34,7 +34,7 @@ class FoldersTableViewCell: UITableViewCell {
 extension FoldersTableViewCell {
     
     func configure(_ folder: Folder) {
-        textLabel?.text = folder.name
+        textLabel?.attributedText = folder.name?.titleAttributedText
         detailTextLabel?.text = folder.notesCount.description
     }
 }

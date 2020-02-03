@@ -10,6 +10,18 @@ import UIKit
 
 class NotePadTextView: UITextView {
     
+    private var placeHolderAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.placeholderText]
+    private var suggestedTextAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.placeholderText]
+    
+    var suggestedText: String? {
+        didSet {
+            if oldValue != suggestedText {
+                setNeedsDisplay()
+            }
+        }
+    }
+    private var suggestedRect = CGRect.zero
+    
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
         setup()
@@ -18,27 +30,42 @@ class NotePadTextView: UITextView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+}
 
-    
+extension NotePadTextView {
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        
+        if !text.isEmpty, let suggestedText = self.suggestedText {
+            let caretRect = self.caretRect(for: self.endOfDocument)
+            
+            let size = CGSize(width: rect.width - caretRect.maxX, height: 50)
+            let diff = (caretRect.height - self.font!.lineHeight) / 2
+            
+            let origin = CGPoint(x: caretRect.maxX, y: caretRect.minY + diff)
+            suggestedRect = CGRect(origin: origin, size: size)
+            
+            suggestedText.draw(in: suggestedRect, withAttributes: suggestedTextAttributes)
+        }
+    }
 }
 
 extension NotePadTextView {
     
+    
+    
     private func setup() {
-        bounces = true
-        alwaysBounceVertical = true
-//        isScrollEnabled = true
-        backgroundColor = nil
-        allowsEditingTextAttributes = true
-        keyboardDismissMode = .none
-        insetsLayoutMarginsFromSafeArea = true
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        showsHorizontalScrollIndicator = false
+        backgroundColor = .clear
+        allowsEditingTextAttributes = false
+        keyboardDismissMode = .interactive
         textContainer.lineFragmentPadding += 10
+    
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byWordWrapping
         paragraphStyle.lineHeightMultiple = 1.1
-        paragraphStyle.firstLineHeadIndent = 10
-
+//        v ndent = 10
         font = UIFont.getDefaultFont()
         var attr = typingAttributes
         attr[.paragraphStyle] = paragraphStyle
@@ -46,6 +73,14 @@ extension NotePadTextView {
         typingAttributes = attr
         
         dataDetectorTypes = []
+        
+        suggestedTextAttributes[.paragraphStyle] = {
+            $0.lineBreakMode = .byClipping
+            return $0
+        }(NSMutableParagraphStyle())
+        suggestedTextAttributes[.font] = font
     }
+    
+    
 
 }
