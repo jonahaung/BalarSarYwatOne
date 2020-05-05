@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+  
 public class NavigationController: UINavigationController {
 
     override public func viewDidLoad() {
@@ -29,9 +29,8 @@ extension NavigationController {
         navigationBar.shadowImage = UIImage()
         navigationBar.isTranslucent = true
         toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-        
+        view.backgroundColor = UIColor.systemBackground
         setBarImage()
-
     }
 
     private func setBarImage() {

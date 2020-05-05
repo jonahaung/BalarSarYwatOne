@@ -23,18 +23,32 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         if let windowScene = scene as? UIWindowScene {
             window = UIWindow(windowScene: windowScene)
-            window?.tintColor = UIColor.systemBlue
-            window?.backgroundColor = UIColor.systemBackground
+//            window?.tintColor = .orange
             window?.makeKeyAndVisible()
+           
+            
+            
             PersistanceManager.shared.loadContainer {
-                self.window?.rootViewController = NavigationController(rootViewController: FoldersViewController())
+                
+                var viewControllers: [UIViewController] = [MainViewController()]
+                if let folderName = userDefaults.currentStringObjectState(for: userDefaults.lastOpenedFolder), let folder = Folder.fetch(name: folderName) {
+                    
+                    let notesVC = NotesViewController(folder: folder)
+                    viewControllers.append(notesVC)
+                    if let noteName = userDefaults.currentStringObjectState(for: userDefaults.lastOpenedNote), let note = Note.fetch(title: noteName) {
+                        let notePadVC = NotePadViewController(note: note)
+                        viewControllers.append(notePadVC)
+                    } else {
+                        
+                    }
+                    
+                }
+                let navigationController = NavigationController()
+                navigationController.viewControllers = viewControllers
+                self.window?.rootViewController = navigationController
                 StartUp.start()
             }
-            
-            
         }
-        
-        
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

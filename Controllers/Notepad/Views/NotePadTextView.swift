@@ -44,7 +44,7 @@ extension NotePadTextView {
             
             let origin = CGPoint(x: caretRect.maxX, y: caretRect.minY + diff)
             suggestedRect = CGRect(origin: origin, size: size)
-            
+        
             suggestedText.draw(in: suggestedRect, withAttributes: suggestedTextAttributes)
         }
     }
@@ -65,7 +65,6 @@ extension NotePadTextView {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byWordWrapping
         paragraphStyle.lineHeightMultiple = 1.1
-//        v ndent = 10
         font = UIFont.getDefaultFont()
         var attr = typingAttributes
         attr[.paragraphStyle] = paragraphStyle

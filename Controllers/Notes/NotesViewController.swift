@@ -41,6 +41,13 @@ class NotesViewController: UIViewController, ItemFactory {
         setupDatasource()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        CurrentSession.currentFolder = folder
+        userDefaults.updateObject(for: userDefaults.lastOpenedFolder, with: folder.name)
+        userDefaults.updateObject(for: userDefaults.lastOpenedNote, with: nil)
+    }
+    
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
             tableView.setBackgroundImage()
@@ -51,6 +58,7 @@ class NotesViewController: UIViewController, ItemFactory {
     init(folder: Folder) {
         self.folder = folder
         super.init(nibName: nil, bundle: nil)
+        
     }
     
     required init?(coder: NSCoder) {
@@ -81,8 +89,7 @@ extension NotesViewController {
     
     
     @objc private func didtapAdddNote(_ sender: UIBarButtonItem) {
-        let note = itemFactory_createNote(folderName: self.folder.name.emptyIfNil, text: "  ")
-        let vc = NotePadViewController(note: note)
+        let vc = NotePadViewController(note: nil)
         navigationController?.pushViewController(vc, animated: true)
     }
 }

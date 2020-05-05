@@ -40,7 +40,7 @@ class NotesTableViewCell: UITableViewCell {
     }(UILabel())
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: .default, reuseIdentifier: FoldersTableViewCell.reuseIdentifier)
+        super.init(style: .default, reuseIdentifier: NotesTableCell.reuseIdentifier)
         setup()
     }
     
@@ -82,7 +82,7 @@ class NotesTableViewCell: UITableViewCell {
 
 extension NotesTableViewCell {
     
-    func configure(_ note: Note) {
+    func configure(_ note: Note, _ folder: Folder?) {
         titleLabel.attributedText = note.title?.titleAttributedText
         if let time = note.edited?.relativeString {
             let text = note.text ?? "No Additional Text"
@@ -91,21 +91,27 @@ extension NotesTableViewCell {
             attrStr.append(textAttrStr)
             subtitleLabel.attributedText = attrStr
         }
-        folderNameLabel.text = note.folder?.name
+        folderNameLabel.text = folder?.name
     }
 }
 
-
+private let paragraphStyle: NSMutableParagraphStyle = {
+    $0.lineBreakMode = .byTruncatingTail
+    return $0
+}(NSMutableParagraphStyle())
 
 extension String {
 
     var titleAttributedText: NSAttributedString {
         let font = self.EXT_isMyanmarCharacters == true ? UIFontMetrics.default.scaledFont(for: UIFont(name: "MyanmarPhetsot", size: UIFont.buttonFontSize)!) : UIFont.preferredFont(forTextStyle: .headline)
-        return NSAttributedString(string: self, attributes: [.font: font])
+        return NSAttributedString(string: self, attributes: [.font: font, .paragraphStyle: paragraphStyle])
     }
     var labelAttributedText: NSAttributedString {
-        
         let font = self.EXT_isMyanmarCharacters == true ? UIFontMetrics.default.scaledFont(for: UIFont(name: "Pyidaungsu", size: UIFont.labelFontSize)!) : UIFont.preferredFont(forTextStyle: .subheadline)
+        return NSAttributedString(string: self, attributes: [.font: font])
+    }
+    var captionAttributedText: NSAttributedString {
+        let font = self.EXT_isMyanmarCharacters == true ? UIFontMetrics.default.scaledFont(for: UIFont(name: "MyanmarPauklay", size: UIFont.preferredFont(forTextStyle: .caption2).pointSize)!) : UIFont.preferredFont(forTextStyle: .caption2)
         return NSAttributedString(string: self, attributes: [.font: font])
     }
 }

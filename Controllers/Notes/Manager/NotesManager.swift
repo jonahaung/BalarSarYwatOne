@@ -13,6 +13,8 @@ final class NotesManager: NSObject {
     
     let fetchRequest: NSFetchRequest<Note> = {
         $0.sortDescriptors = [NSSortDescriptor(key: "edited", ascending: false)]
+        $0.returnsObjectsAsFaults = false
+        $0.includesPendingChanges = true
         return $0
     }(NSFetchRequest<Note>(entityName: "Note"))
     
@@ -62,7 +64,7 @@ extension NotesManager: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let note = frc.object(at: indexPath)
         let cell = tableView.dequeueReusableCell(withIdentifier: NotesTableViewCell.reuseIdentifier, for: indexPath) as! NotesTableViewCell
-        cell.configure(note)
+        cell.configure(note, folder)
         return cell
     }
     
@@ -86,20 +88,20 @@ extension NotesManager: NSFetchedResultsControllerDelegate {
         switch (type) {
         case .insert:
             guard let i = newIndexPath else { return }
-            tableView?.insertRows(at: [i], with: .fade)
+            tableView?.insertRows(at: [i], with: .automatic)
         case .delete:
             guard let i = indexPath else { return }
-            tableView?.deleteRows(at: [i], with: .fade)
+            tableView?.deleteRows(at: [i], with: .automatic)
         case .update:
-            guard let i = indexPath, let cell = tableView?.cellForRow(at: i) as? NotesTableViewCell else { return }
-            cell.configure(frc.object(at: i))
+            guard let i = indexPath, let new = newIndexPath else { return }
+            tableView?.reloadRows(at: [i, new], with: .automatic)
             
         case .move:
             if let indexPath = indexPath {
-                tableView?.deleteRows(at: [indexPath], with: .fade)
+                tableView?.deleteRows(at: [indexPath], with: .automatic)
             }
             if let newIndexPath = newIndexPath {
-                tableView?.insertRows(at: [newIndexPath], with: .fade)
+                tableView?.insertRows(at: [newIndexPath], with: .automatic)
             }
         @unknown default:
             break

@@ -17,6 +17,8 @@ extension UITextView {
         return nil 
     }
     
+    
+    
     func getWordAtPosition(_ point: CGPoint) -> String? {
         if let range = getWordRangeAtPosition(point) {
             return self.text(in: range)
