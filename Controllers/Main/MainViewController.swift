@@ -253,32 +253,3 @@ extension MainViewController: OcrManagerDelegate {
     
     
 }
-
-extension MainViewController: ImageScannerControllerDelegate {
-    
-    func imageScannerController(_ scanner: ImageScannerController, didFinishScanningWithResults results: ImageScannerResults) {
-        setLoading(true)
-        scanner.dismiss(animated: true) {
-            let image = results.originalScan.image
-            OCRManager.shared.detectMyanmarTexts(for: image) { x in
-                DispatchQueue.main.async {
-                    setLoading(false)
-                    if let texts = x?.cleanUpMyanmarTexts() {
-                        let note = self.itemFactory_createNote(text: texts)
-                        self.pushTo(NotePadViewController(note: note))
-                    }
-                    
-                }
-                
-            }
-        }
-    }
-    
-    func imageScannerControllerDidCancel(_ scanner: ImageScannerController) {
-        scanner.dismiss(animated: true, completion: nil)
-    }
-    
-    func imageScannerController(_ scanner: ImageScannerController, didFailWithError error: Error) {
-        
-    }
-}

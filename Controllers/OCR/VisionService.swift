@@ -68,6 +68,17 @@ extension VisionService: AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
     func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-//        print("Drop Frame")
+        guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
+        if CurrentSession.videoSize == .zero {
+            CurrentSession.videoSize = CGSize(width: CVPixelBufferGetWidth(buffer), height: CVPixelBufferGetHeight(buffer))
+        }
+        let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        let deltaTime = timestamp - lastTimestamp
+        let canPerformRequest = deltaTime >= CMTimeMake(value: 1, timescale: Int32(fps))
+        if canPerformRequest {
+            lastTimestamp = timestamp
+            detect(buffer)
+        }
     }
 }

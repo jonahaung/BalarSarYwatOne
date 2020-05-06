@@ -180,7 +180,9 @@ extension NotePadViewController {
         vc.manager.delegate = self
         present(vc, animated: true, completion: nil)
     }
-    
+    @objc private func didTapResegment(_ sender: UIBarButtonItem?) {
+        textView.text = textView.text.components(separatedBy: .newlines).joined(separator: "\n")
+    }
     @objc private func didTapScanDocuments(_ sender: UIBarButtonItem?) {
         askLanguage { (isMyanmar) in
             self.manager.isMyanmar = isMyanmar
@@ -243,7 +245,9 @@ extension NotePadViewController {
         let trash = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: #selector(didTapMenu(_:)))
         let scanCamera = UIBarButtonItem(image: UIImage(systemName: "camera.viewfinder", withConfiguration: UIImage.SymbolConfiguration(font: UIFont.preferredFont(forTextStyle: .title3), scale: .large)), style: .plain, target: self, action: #selector(didTapScanCamera(_:)))
         let scanDocuments = UIBarButtonItem(image: UIImage(systemName: "doc.text.viewfinder", withConfiguration: UIImage.SymbolConfiguration(font: UIFont.preferredFont(forTextStyle: .title3), scale: .large)), style: .plain, target: self, action: #selector(didTapScanDocuments(_:)))
-        let items = [trash, UIBarButtonItem.flexiable, scanDocuments, scanCamera, pencil]
+        
+        let resegment = UIBarButtonItem(image: UIImage(systemName: "decrease.indent", withConfiguration: UIImage.SymbolConfiguration(font: UIFont.preferredFont(forTextStyle: .title3), scale: .large)), style: .plain, target: self, action: #selector(didTapResegment(_:)))
+        let items = [trash, resegment, UIBarButtonItem.flexiable, scanDocuments, scanCamera, pencil]
         navigationController?.setToolbarHidden(false, animated: true)
         toolbarItems = items
         

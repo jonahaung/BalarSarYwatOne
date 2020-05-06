@@ -116,6 +116,7 @@ extension NotePadManager {
     }
     
     private func completion(for word: String) -> String? {
+
         let encoded = word.urlEncoded
         let encodedLength = encoded.utf16.count
         
